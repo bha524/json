@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <title>Tapahtumat</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="tyyli.css">  
+</head>
+<body>
+     <nav>
+        <ul>
+          <li><a href="index2.html">Etusivu</a></li>
+          <li><a href="toteutus.html">Toteutus</a></li>
+          <li><a href="tapahtumat.html">Tapahtumat</a></li>
+          <li><a href="saa.html">Sää</a></li>
+          <li><a href="junat.html">Junat</a></li>
+        </ul>
+    </nav>
+
+    <div id="vastaus"></div>
+
+    <script>
+
+        fetch('https://api.visittampere.com/api/v1/visittampere/event/published/all/?format=json&lang=fi') // Haetaan Tampereen tapahtumatiedot ulkoisesta API:sta
+            .then(function (response) {
+                return response.json(); // Muunnetaan vastaus JSON-muotoon
+            })
+            .then(function (responseJson) {
+                tapahtumat(responseJson); // Kutsutaan tapahtumat-funktiota ja annetaan sille JSON-data
+            })
+            .catch(function (error) {
+                document.getElementById("vastaus").innerHTML = "<p>Tietoa ei pystytä hakemaan </p>" + error; // Virheilmoitus
+            });
+
+        // Funktio, jolla käsitellään Tampereen tapahtumat ja lisätään HTML-muodossa
+        function tapahtumat(data) {
+            var teksti = "";
+            teksti = "<h1>Tampereella tapahtuu</h1>"; // Otsikko
+
+            // Käydään läpi kaikki JSON:in tapahtumat
+            for (var i = 0; i < data.length; i++) {
+                var tapahtumanNimi = data[i].name ? data[i].name : "Tapahtuma"; // Tarkistetaan, ovatko kentät, kuten tapahtuman nimi ja kuvaus, olemassa ennen niiden käyttämistä
+                var tapahtumanKuvaus = data[i].description ? data[i].description : "Tapahtuman kuvaus puuttuu.";
+                var tapahtumanUrl = data[i].url ? data[i].url : "#";
+                var tapahtumanKuva = data[i].image ? data[i].image.src : ""; // Tapahtuman mahdollinen kuva 
+
+                // Rakennetaan HTML Tampereen tapahtumille
+                teksti += "<div class='tapahtuma'>";  // Jokaiselle tapahtumalle oma div
+                teksti += "<h3>" + tapahtumanNimi + "</h3>"; // Tapahtuman nimi
+                teksti += "<p>" + tapahtumanKuvaus + "</p>"; // Tapahtuman kuvaus
+                teksti += "<p><a href='" + tapahtumanUrl + "' target='_blank'>" + tapahtumanUrl + "</a></p>"; // Tapahtuman URL
+
+                // Jos tapahtumalla on olemassa kuva, voidaan lisätä
+                if (tapahtumanKuva) {
+                    teksti += "<p><img src='" + tapahtumanKuva + "' alt='" + tapahtumanNimi + "' class='tapahtuma-kuva'></p>";
+                }
+
+                teksti += "</div>";  // Suljetaan div-elementti
+            }
+
+            document.getElementById("vastaus").innerHTML = teksti; // Tulostetaan sisältö div-elementtiin
+        }
+
+    </script>
+
+</body>
+</html>

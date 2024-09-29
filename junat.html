@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <title>Junat</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="tyyli.css"> 
+</head>
+<body>
+  <nav>
+    <ul>
+      <li><a href="index2.html">Etusivu</a></li>
+      <li><a href="toteutus.html">Toteutus</a></li>
+      <li><a href="tapahtumat.html">Tapahtumat</a></li>
+      <li><a href="saa.html">Sää</a></li>
+      <li><a href="junat.html">Junat</a></li>
+    </ul>
+  </nav>
+
+  <h1>Junat Tampereelle</h1>
+  <div id="junat"></div>
+
+  <script>
+    fetch('https://rata.digitraffic.fi/api/v1/live-trains/station/HKI?departing_trains=100&include_nonstopping=false') // Haetaan Helsingistä Tampereelle menevien junien tiedot Digitraffic-rajapinnasta
+      .then(function (response) {
+        return response.json(); // API:n vastauksen muuttaminen JSON-muotoon
+      })
+      .then(function (data) {
+        var junat = ''; // Muuttujan määrittäminen
+        for (var i = 0; i < data.length; i++) { // Käydään läpi haetut junat
+          for (var j = 0; j < data[i].timeTableRows.length; j++) { // Jokaisen junan aikataulu
+            // Tutkitaan onko juna lähdössä Tampereelle (TPE), etsitään aikataulurivi
+            if (data[i].timeTableRows[j].stationShortCode == 'TPE' && data[i].timeTableRows[j].type == 'DEPARTURE') { // Tampereelle lähdössä oleva juna
+              var pvm = data[i].timeTableRows[j].scheduledTime; // Lähtöaika
+              var aika = pvm.substr(0, 10) + " kello: " + pvm.substr(11, 5); // Päivän ja kelloajan muotoileminen
+
+              junat += "<div class='train-box'>"; // Tehdään HTML-rakenne yksittäiselle junalle, oma div-elementti jokaiselle
+              junat += "<h3>Juna " + data[i].trainNumber + " (" + data[i].trainCategory + ")</h3>"; // Junan numero ja kategoria
+              junat += "<p>Lähtöpaikka: " + data[i].timeTableRows[0].stationShortCode + "</p>"; // Junan lähtöasema
+              junat += "<p>Määränpää: " + data[i].timeTableRows[data[i].timeTableRows.length - 1].stationShortCode + "</p>"; // Junan määränpää
+              junat += "<p>Lähtöaika: " + aika + "</p>"; // Junan lähtöaika
+              junat += "</div>"; // Junan div-elementin sulkeminen
+            }
+          }
+        }
+        document.getElementById('junat').innerHTML = junat; // Kootaan junatiedot div-elementtiin
+      })
+      .catch(function (error) {
+        document.getElementById('junat').innerHTML = "<p>Juna-aikatauluja ei pystytty hakemaan</p>"; // Virheilmoitus
+      });
+  </script>
+</body>
+</html>

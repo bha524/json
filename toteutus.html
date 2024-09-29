@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <title>Toteutus</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="tyyli.css">
+</head>
+<body>
+  <nav>
+    <ul>
+          <li><a href="index2.html">Etusivu</a></li>
+          <li><a href="toteutus.html">Toteutus</a></li>
+          <li><a href="tapahtumat.html">Tapahtumat</a></li>
+          <li><a href="saa.html">Sää</a></li>
+          <li><a href="junat.html">Junat</a></li>
+    </ul>
+  </nav>
+
+  <div id="vastaus"></div>
+
+  <script>
+    fetch('https://run.mocky.io/v3/1529e481-5243-4cc3-b9ba-1bf9555ea577') // Mocky-palvelusta haettu JSON-data
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (responseJson) {
+        console.log(responseJson);  // JSON-tiedot tulostetaan
+        kerro(responseJson);        // Kerro-funktio kutsutaan ja annetaan sille JSON-data
+      })
+      .catch(function (error) {
+        document.getElementById("vastaus").innerHTML = "<p>Tietoa ei pystytä hakemaan</p>"; // Virheilmoitus
+      });
+
+    function kerro(data) {
+      if (data) {
+        var teksti = "<h1>" + data.toteutuksen_nimi + "</h1>"; // Muutettu avaimet, koodissa olevat viittaukset vastaamaan JSON:ia
+        teksti += "<p>Osallistujia: " + (data.osallistujat_lkm || 0) + "</p>"; // Muutettu avaimet
+        teksti += "<h3>Osallistujat</h3><ul>";
+
+        if (data.osallistujat && Array.isArray(data.osallistujat)) { // Osallistujien tarkistaminen, ovatko olemassa taulukossa 
+          data.osallistujat.forEach(function(osallistuja) { // Olemassa olevien osallistujien lisääminen luetteloon
+            teksti += "<li>" + osallistuja.nimi + "</li>";
+          });
+        } else {
+          teksti += "<li>Ei osallistujia saatavilla.</li>"; // Jos osallistujia ei olisi
+        }
+
+        teksti += "</ul>"; // Lisätään aloitus- ja loppumisaika sekä kesto
+        teksti += "<p>Alkaa: " + data.alkamisaika + "</p>";
+        teksti += "<p>Loppuu: " + data.loppumisaika + "</p>";
+        teksti += "<p>Kesto: " + (data.kesto_viikoissa || "Ei määritelty") + " viikkoa</p>"; // Muutettu avaimet
+        teksti += "<p><img src='kurssi.png.' alt='Toteutuksen kuva'></p>"; // Lisätään kuva
+
+        document.getElementById("vastaus").innerHTML = teksti; // HTML-sisällön päivittäminen div-elementtiin
+      } else {
+        document.getElementById("vastaus").innerHTML = "<p>Tietoa ei löytynyt.</p>"; // Jos data ei olisi saatavilla, saadaan virheilmoitus
+      }
+    }
+  </script>
+</body>
+</html>

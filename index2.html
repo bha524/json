@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Etusivu</title>
+  <link rel="stylesheet" href="tyyli.css"> 
+</head>
+<body>
+  <nav>
+    <ul>
+          <li><a href="index2.html">Etusivu</a></li>
+          <li><a href="toteutus.html">Toteutus</a></li>
+          <li><a href="tapahtumat.html">Tapahtumat</a></li>
+          <li><a href="saa.html">Sää</a></li>
+          <li><a href="junat.html">Junat</a></li>
+    </ul>
+  </nav>
+
+  <div id="vastaus"></div> 
+
+  <script>
+    fetch('https://run.mocky.io/v3/5a14d0be-cddb-410a-8737-9b5ff8af9f04')  // Mocky-palvelusta haettu JSON-data
+      .then(function (response) {
+        if (!response.ok) {
+          throw new Error('Verkkovirhe: ' + response.status);
+        }
+        return response.json();  // Vastauksen muuntaminen JSON-muotoon
+      })
+      .then(function (responseJson) {
+        console.log(responseJson);  // JSON-tietojen tulostaminen 
+        kerro(responseJson);  // kerro-funktio JSON-datalla
+      })
+      .catch(function (error) {
+        document.getElementById("vastaus").innerHTML = "<p>Tietoa ei pystytä hakemaan</p>";
+        console.error('Virhe:', error); // Virheen tulostaminen
+      });
+
+    // JSON-data käsitellään funktion avulla
+    function kerro(data) {
+      var teksti = "";  
+
+      // Tulostetaan otsikot
+      teksti = "<h1>" + data.otsikko + "</h1>";
+
+      // Kuvauksen sisältö
+      teksti += "<p>" + data.kuvaus + "</p>";
+
+      // Kuva
+      teksti += "<p><img src='" + data.kuva + "' alt='kuva'></p>";
+
+      // Opintojakson tiedot
+      teksti += "<h3>Opintojakso: " + data.opintojakso.nimi + "</h3>";
+      teksti += "<p>Tunnus: " + data.opintojakso.tunnus + "</p>";
+      teksti += "<p>Opintopisteet: " + data.opintojakso.opintopisteet + "</p>";
+
+      // Sisältö
+      teksti += "<ul>";
+      for (var i = 0; i < data.sisalto.length; i++) {
+        teksti += "<li>" + data.sisalto[i] + "</li>";
+      }
+      teksti += "</ul>";
+
+      // Tekniikat linkeineen
+      teksti += "<h3>Tekniikat</h3>";
+      teksti += "<ul>";
+      for (var i = 0; i < data.tekniikat.length; i++) {
+        teksti += "<li><a href='" + data.tekniikat[i].linkki + "'>" + data.tekniikat[i].aihe + "</a></li>";
+      }
+      teksti += "</ul>";
+
+      // Tekstin tulostaminen sivulle
+      document.getElementById("vastaus").innerHTML = teksti;
+    }
+  </script>
+</body>
+</html>

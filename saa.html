@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="tyyli.css">
+    <title>Säätiedot Helsingistä ja Tampereelta</title>
+</head>
+<body>
+    <nav>
+        <ul>
+          <li><a href="index2.html">Etusivu</a></li>
+          <li><a href="toteutus.html">Toteutus</a></li>
+          <li><a href="tapahtumat.html">Tapahtumat</a></li>
+          <li><a href="saa.html">Sää</a></li>
+          <li><a href="junat.html">Junat</a></li>
+        </ul>
+      </nav>
+    <div id="vastaus"></div> 
+
+    <script>
+        fetch('https://api.openweathermap.org/data/2.5/weather?lang=fi&q=helsinki&units=metric&APPID=314de1b8dabfbace7321a5ff474e27d1') // Helsingin säätietojen haku OpenWeatherMap API:n kautta
+            .then(function (response) {
+                return response.json(); // Muunnetaan API:n vastaus JSON-muotoon
+            })
+            .then(function (responseJson) {
+                saa(responseJson); // Kutsutaan saa-funktiota, jolla käsitellään Helsingin säätiedot
+            })
+            .catch(function (error) { 
+                document.getElementById("vastaus").innerHTML += "<p>Tietoa ei pystytä hakemaan Helsingistä.</p>";
+            });
+
+        fetch('https://api.openweathermap.org/data/2.5/weather?lang=fi&q=tampere&units=metric&APPID=314de1b8dabfbace7321a5ff474e27d1') // Tampereen säätietojen haku OpenWeatherMap API:n kautta
+            .then(function (response) {
+                return response.json(); // Muunnetaan API:n vastaus JSON-muotoon
+            })
+            .then(function (responseJson) {
+                saa(responseJson); // Kutsutaan saa-funktiota, jolla käsitellään Tampereen säätiedot
+            })
+            .catch(function (error) { 
+                document.getElementById("vastaus").innerHTML += "<p>Tietoa ei pystytä hakemaan Tampereelta.</p>"; // Virheilmoitus
+            });
+
+        function saa(data) { // Funktion avulla käsitellään API:sta haetut säätiedot
+            var teksti = ""; // Määritellään tyhjä muuttuja, johon kerätään tulostettava tieto
+
+            teksti += "<h1>" + data.name + "</h1>"; // Kaupungin nimen hakeminen HTML:ään
+
+            // Sään kuvaus
+            teksti += "<p>Säätila: " + data.weather[0].description + "</p>";
+
+            // Lämpötilan ja tuulen nopeus
+            teksti += "<p>Lämpötila: " + data.main.temp + " &deg;C</p>"; 
+            teksti += "<p>Tuulen nopeus: " + data.wind.speed + " m/s</p>"; 
+
+            // Sään kuva
+            var kuva = 'http://openweathermap.org/img/w/' + data.weather[0].icon + '.png';
+            teksti += "<p><img src='" + kuva + "' alt='sääkohde'></p>";
+
+            document.getElementById("vastaus").innerHTML += teksti; // Tulostetaan kerätty sisältö div-elementtiin
+        }
+    </script>
+</body>
+</html>
